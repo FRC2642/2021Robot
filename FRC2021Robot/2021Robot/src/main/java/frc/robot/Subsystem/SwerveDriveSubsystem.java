@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.util.Units;
@@ -39,13 +40,15 @@ import frc.robot.Robot;
 import frc.robot.SwerveModule;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANAnalog;
+import edu.wpi.first.wpilibj.controller.PIDController;
 
-import jaci.pathfinder.Waypoint;
+
+/*import jaci.pathfinder.Waypoint;
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Trajectory.Config;
 import jaci.pathfinder.Trajectory.FitMethod;
 import jaci.pathfinder.modifiers.SwerveModifier;
-import jaci.pathfinder.followers.EncoderFollower;
+import jaci.pathfinder.followers.EncoderFollower;*/
 
 
 
@@ -69,16 +72,12 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   public SwerveDriveOdometry odometry;
 
   public AHRS navx;
-  //public TrajectoryConfig config;
-  public Trajectory centerTrajectory;
-  public Trajectory leftTrajectory;
-  public Trajectory rightTrajectory1;
-  public Trajectory rightTrajectory2;
-  public Trajectory exampleTrajectory;
+  public TrajectoryConfig config;
+  public Trajectory autonav3;
 
   public CANSparkMax driveMotor;
   public CANEncoder driveEncoder;
-  //public CANAnalog absoluteAngleEncoder;
+  public CANAnalog absoluteAngleEncoder;
   public CANSparkMax angleMotor;
 
   public Pose2d updatedPose;
@@ -91,7 +90,35 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
   public boolean isSlowDrive = false;
 
-  private static final Config config = new Config(FitMethod.HERMITE_CUBIC, Config.SAMPLES_HIGH, 1.0/50.0, kMaxMPS, kMaxAcceleration, 60.0);
+  private PIDController frontRightPID;
+	private PIDController frontLeftPID;
+	private PIDController backRightPID;
+  private PIDController backLeftPID;
+  
+  private final double p = 0.05;    //0.015;
+	private final double i = 0.0025;    //0.005;
+  private final double d = 0.005;    //0.125;
+  
+  private final double ENCODER_TICKS_FOR_ADJUSTER_TRAVEL = 875.0;
+
+  
+  /*public class PIDOutputClass implements PIDOutput {
+		public CANSparkMax angleMotor;
+		
+		public PIDOutputClass(CANSparkMax motor) {
+			this.angleMotor = angleMotor;
+		}
+		
+		@Override
+		public void pidWrite(double output) {
+			angleMotor.set(output);
+		}
+	}*/
+
+
+
+
+  //private static final Config config = new Config(FitMethod.HERMITE_CUBIC, Config.SAMPLES_HIGH, 1.0/50.0, kMaxMPS, kMaxAcceleration, 60.0);
 
   /**
    * Creates a new SwerveDriveSubsystem.
@@ -154,8 +181,8 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     driveEncoder = frontLeftDriveMotor.getEncoder();
 
     //assigns angle encoder
-    //this.angleMotor = angleMotor;
-    //absoluteAngleEncoder = frontLeftAngleMotor.getAnalog(CANAnalog.AnalogMode.kAbsolute);
+    this.angleMotor = angleMotor;
+    absoluteAngleEncoder = frontLeftAngleMotor.getAnalog(CANAnalog.AnalogMode.kAbsolute);
     //absoluteAngleEncoder.setPositionConversionFactor(kAnglePositionConversionFactor); //voltage into degrees
     driveEncoder.setVelocityConversionFactor(kDriveVelocityConversionFactor); //rpm into MPS  
 
@@ -175,6 +202,22 @@ public class SwerveDriveSubsystem extends SubsystemBase {
       modules.add(backLeftModule);
       modules.add(backRightModule);
 
+    
+    /*PIDOutputClass frontRightPIDOutput = new PIDOutputClass(new CANSparkMax(frontRightAngleMotor));
+    PIDOutputClass frontLeftPIDOutput = new PIDOutputClass(new CANSparkMax(frontLeftAngleMotor));
+    PIDOutputClass backRightPIDOutput = new PIDOutputClass(new CANSparkMax(backRightAngleMotor));
+    PIDOutputClass backLeftPIDOutput = new PIDOutputClass(new CANSparkMax(backLeftAngleMotor));*/
+      
+    //Intstantiating PID Controllers with p, i, d, Encoder, Victor
+    frontRightPID = new PIDController(p, i, d);
+    frontLeftPID = new PIDController(p, i, d);
+    backRightPID = new PIDController(p, i, d);
+    backLeftPID = new PIDController(p, i, d);
+    
+    
+
+
+
     //sets module distances from center of rotation
     //forward = postive x, right = positive y
     Translation2d frontLeft = new Translation2d(-kXDistanceFromCenter, kYDistanceFromCenter);
@@ -192,48 +235,16 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         // Add kinematics to ensure max speed is actually obeyed
         .setKinematics(kinematics);
       
-      config.setReversed(true);*/
+      config.setReversed(true);
 
-      /* Trajectory centerTrajectory = TrajectoryGenerator.generateTrajectory(
-              // Start at the origin facing the +X direction
-              new Pose2d(0, 0, new Rotation2d(0)),
-              // Pass through these two interior waypoints, making an 's' curve path
-              List.of(
-                  new Translation2d(3.1496, 0)),
-              // End 3 meters straight ahead of where we started, facing forward
-              new Pose2d(3.1496, 0, new Rotation2d(0)),
-              config);
+      Trajectory autonav3 = TrajectoryGenerator.generateTrajectory(
+        new Pose2d(0, 0, new Rotation2d(0)),
+        List.of(              
+          new Translation2d(5,0),
+          new Translation2d(0, 5)),
+          new Pose2d(5, 5, new Rotation2d(0)),             
+            config);*/
 
-      Trajectory leftTrajectory = TrajectoryGenerator.generateTrajectory(
-              new Pose2d(0,0, new Rotation2d(0)), 
-                
-                List.of(
-                  new Translation2d(3.1496, 0),
-                  new Translation2d(0, -2.64282819922)
-              ),
-              new Pose2d(3.1496,-2.64282819922, new Rotation2d(0)), 
-              config);
-            
-              //not final yet maybe possibly :\ ????
-      Trajectory rightTrajectory1 = TrajectoryGenerator.generateTrajectory(
-                new Pose2d(0, 0, new Rotation2d(0)),
-                
-                List.of(
-                    new Translation2d(2.200402, 0)),
-                
-                    new Pose2d(2.200402, 0, new Rotation2d(0)),
-                config);
-            
-      Trajectory rightTrajectory2 = TrajectoryGenerator.generateTrajectory(
-                  new Pose2d(2.200402, 0, new Rotation2d(0)),
-                  
-                  List.of(
-                      new Translation2d(2.7432, 0)),
-                  
-                      new Pose2d(4.943602, 0, new Rotation2d(0)),
-                  config); */
-
-        
     
     //instantiates navx
     try{
@@ -248,6 +259,29 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     areAllWheelsAligned = false;
     isSlowDrive = false;
   }
+
+  //pid method
+      public void setFrontRightAngle(double angle) {
+      frontRightPID.enableContinuousInput(-180, 180);
+    	frontRightPID.setSetpoint(angle);
+    	System.out.println("out angle: " + frontRightPID.getSetpoint());
+    }
+    
+    public void setFrontLeftAngle(double angle) {
+      frontLeftPID.enableContinuousInput(-180, 180);
+    	frontLeftPID.setSetpoint(angle);
+    	System.out.println(angle);
+    }
+    
+    public void setBackRightAngle(double angle) {
+      backRightPID.enableContinuousInput(-180, 180);
+    	backRightPID.setSetpoint(angle);
+    }
+    
+    public void setBackLeftAngle(double angle) {
+      backLeftPID.enableContinuousInput(-180, 180);
+    	backLeftPID.setSetpoint(angle);
+    }
 
   /**
    * METHODS
@@ -415,23 +449,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     robotCentricDrive(0, 0, 0);
   }
 
-  public EncoderFollower[] generateFollowers(final Waypoint[] points) {
-    final SwerveModifier modifier = new SwerveModifier(Pathfinder.generate(points, config))
-    .modify(wheelBaseWidth, wheelBaseLength, SwerveModifier.Mode.SWERVE_DEFAULT);
-
-    final EncoderFollower[] followers = new EncoderFollower[] {
-      new EncoderFollower(modifier.getFrontLeftTrajectory()),
-      new EncoderFollower(modifier.getFrontRightTrajectory()),
-      new EncoderFollower(modifier.getBackLeftTrajectory()),
-      new EncoderFollower(modifier.getBackRightTrajectory())
-
-    };
-    for (final EncoderFollower follower : followers) {
-      follower.configureEncoder(0, ticksPerRevolution, 4.0);
-      follower.configurePIDVA(5.0, 0.0, 0.0, 1.0/kMaxMPS, 1.0/kMaxAcceleration);
-    }
-    return followers
-  }
+  
   /**
    * Sets wheels into locked position (most resistant to being pushed)
    */
@@ -556,10 +574,12 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
   public Pose2d getPose(){
     Pose2d pose = odometry.getPoseMeters();
-    Translation2d transPose = pose.getTranslation();
-    transPose = transPose.div(kMaxSpeedConversionFactor);
-    Pose2d realPose = new Pose2d(transPose, pose.getRotation());
-    return realPose; 
+    driveEncoder.setVelocityConversionFactor(kDriveVelocityConversionFactor); //rpm into MPS  
+
+    //Translation2d transPose = pose.getTranslation();
+    //transPose = transPose.div(kMaxSpeedConversionFactor);
+    //Pose2d realPose = new Pose2d(transPose, pose.getRotation());
+    return pose; 
 
     //return pose;
   }
@@ -649,9 +669,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     } */
 
   
-  
-   //odometry.update(getRobotYawInRotation2d(), frontLeftState, frontRightState, backLeftState, backRightState);
-
   //SmartDashboard.putNumber("fl vel", frontLeftModule.getDriveVelocity());
   }
 }

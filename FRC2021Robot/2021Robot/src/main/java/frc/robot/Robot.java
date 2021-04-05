@@ -67,6 +67,9 @@ package frc.robot;
 
 import static frc.robot.GeneralUtil.generateAuto;
 
+import java.io.IOException;
+import java.nio.file.Path;
+
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
@@ -75,6 +78,9 @@ import edu.wpi.cscore.UsbCamera;
 import edu.wpi.cscore.VideoSink;
 import edu.wpi.cscore.VideoSource;
 import edu.wpi.cscore.VideoSource.ConnectionStrategy;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -94,7 +100,10 @@ import edu.wpi.first.wpilibj.Timer;
 //import frc.robot.util.JevoisDriver;
 import frc.robot.RobotContainer;
 import frc.robot.Commands.AutoCommands.autoCommandGroup;
+import frc.robot.Commands.AutoCommands.swerveControllerCommand;
 import frc.robot.Subsystem.SwerveDriveSubsystem;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
+
 
 
 
@@ -139,6 +148,11 @@ public class Robot extends TimedRobot {
 
   VideoSink camServer;
   
+  //String trajectoryJSON = "paths/Unnamed.wpilib.json";
+  //Trajectory trajectory = new Trajectory();
+
+
+  
   @Override
   public void robotInit() {
     
@@ -161,6 +175,9 @@ public class Robot extends TimedRobot {
     shooterCam.setConnectionStrategy(ConnectionStrategy.kAutoManage);
 
     camServer = CameraServer.getInstance().getServer();
+
+    
+  
 
 
     //table = NetworkTableInstance.getDefault().getTable("GRIP/mycontoursReport");
@@ -231,10 +248,10 @@ public class Robot extends TimedRobot {
     //SmartDashboard.putBoolean("isArm", RobotContainer.arm.isArmAtGoal());
     SmartDashboard.putBoolean("isMagReady", RobotContainer.magazine.isMagReadyToShoot());
    
-    SmartDashboard.putNumber("blangle", RobotContainer.drive.backLeftModule.getAbsoluteAngleEncoder());
-    SmartDashboard.putNumber("brangle", RobotContainer.drive.backRightModule.getAbsoluteAngleEncoder());
-    SmartDashboard.putNumber("flangle", RobotContainer.drive.frontLeftModule.getAbsoluteAngleEncoder());
-    SmartDashboard.putNumber("frangle", RobotContainer.drive.frontRightModule.getAbsoluteAngleEncoder());
+    SmartDashboard.putNumber("blangle", RobotContainer.drive.backLeftModule.getAbsoluteAngleEncoder() + 1);
+    SmartDashboard.putNumber("brangle", RobotContainer.drive.backRightModule.getAbsoluteAngleEncoder() + 1);
+    SmartDashboard.putNumber("flangle", RobotContainer.drive.frontLeftModule.getAbsoluteAngleEncoder() + 1);
+    SmartDashboard.putNumber("frangle", RobotContainer.drive.frontRightModule.getAbsoluteAngleEncoder() + 1);
 
     SmartDashboard.putNumber("relblangle", RobotContainer.drive.backLeftModule.getRelativeAngleEncoder());
     SmartDashboard.putNumber("relbrangle", RobotContainer.drive.backRightModule.getRelativeAngleEncoder());
@@ -265,16 +282,18 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     
-    /*m_autonomousCommand = robotContainer.getAutonomousCommand();
-    m_autonomousCommand = new autoCommandGroup();
+    //m_autonomousCommand = robotContainer.getAutonomousCommand();
+    m_autonomousCommand = new swerveControllerCommand();
 
     //m_autonomousCommand =  robotContainer.getAutonomousCommand();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
+
+      
     
-    }*/
-    timer.reset();
-    timer.start();
+    }
+    /*timer.reset();
+    timer.start();*/
   }
 
   @Override
@@ -282,11 +301,11 @@ public class Robot extends TimedRobot {
     /*new WaitCommand(2).deadlineWith(new RunCommand(() -> drive.drive(.3, 0.0, 0.0), drive))
     .andThen(
       new WaitCommand(2).deadlineWith(new RunCommand(() -> drive.drive(-.3, 0.0, 0.0), drive)));*/
-      if (timer.get() < 2.0) {
+      /*if (timer.get() < 2.0) {
         drive.drive(0.3, 0.0, 0.0);
       } else {
         drive.stop();
-      }
+      }*/
       
   }
 
