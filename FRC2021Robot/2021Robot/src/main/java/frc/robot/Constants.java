@@ -175,7 +175,7 @@ public final class Constants {
     public static final double kZone1Pos = 44.8;
     public static final double kZone2Pos = 23.9;
     public static final double kZone3Pos = 20.1;
-    public static final double kZone4Pos = 21.6;
+    public static final double kZone4Pos = 20.04;
     
 
     /**
