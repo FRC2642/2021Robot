@@ -90,30 +90,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
   public boolean isSlowDrive = false;
 
-  private PIDController frontRightPID;
-	private PIDController frontLeftPID;
-	private PIDController backRightPID;
-  private PIDController backLeftPID;
   
-  private final double p = 0.05;    //0.015;
-	private final double i = 0.0025;    //0.005;
-  private final double d = 0.005;    //0.125;
-  
-  private final double ENCODER_TICKS_FOR_ADJUSTER_TRAVEL = 875.0;
-
-  
-  /*public class PIDOutputClass implements PIDOutput {
-		public CANSparkMax angleMotor;
-		
-		public PIDOutputClass(CANSparkMax motor) {
-			this.angleMotor = angleMotor;
-		}
-		
-		@Override
-		public void pidWrite(double output) {
-			angleMotor.set(output);
-		}
-	}*/
 
 
 
@@ -203,16 +180,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
       modules.add(backRightModule);
 
     
-    /*PIDOutputClass frontRightPIDOutput = new PIDOutputClass(new CANSparkMax(frontRightAngleMotor));
-    PIDOutputClass frontLeftPIDOutput = new PIDOutputClass(new CANSparkMax(frontLeftAngleMotor));
-    PIDOutputClass backRightPIDOutput = new PIDOutputClass(new CANSparkMax(backRightAngleMotor));
-    PIDOutputClass backLeftPIDOutput = new PIDOutputClass(new CANSparkMax(backLeftAngleMotor));*/
-      
-    //Intstantiating PID Controllers with p, i, d, Encoder, Victor
-    frontRightPID = new PIDController(p, i, d);
-    frontLeftPID = new PIDController(p, i, d);
-    backRightPID = new PIDController(p, i, d);
-    backLeftPID = new PIDController(p, i, d);
     
     
 
@@ -260,28 +227,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     isSlowDrive = false;
   }
 
-  //pid method
-      public void setFrontRightAngle(double angle) {
-      frontRightPID.enableContinuousInput(-180, 180);
-    	frontRightPID.setSetpoint(angle);
-    	System.out.println("out angle: " + frontRightPID.getSetpoint());
-    }
-    
-    public void setFrontLeftAngle(double angle) {
-      frontLeftPID.enableContinuousInput(-180, 180);
-    	frontLeftPID.setSetpoint(angle);
-    	System.out.println(angle);
-    }
-    
-    public void setBackRightAngle(double angle) {
-      backRightPID.enableContinuousInput(-180, 180);
-    	backRightPID.setSetpoint(angle);
-    }
-    
-    public void setBackLeftAngle(double angle) {
-      backLeftPID.enableContinuousInput(-180, 180);
-    	backLeftPID.setSetpoint(angle);
-    }
+      
 
   /**
    * METHODS

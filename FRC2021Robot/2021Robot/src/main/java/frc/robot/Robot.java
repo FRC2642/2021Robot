@@ -100,7 +100,7 @@ import edu.wpi.first.wpilibj.Timer;
 //import frc.robot.util.JevoisDriver;
 import frc.robot.RobotContainer;
 import frc.robot.Commands.AutoCommands.autoCommandGroup;
-import frc.robot.Commands.AutoCommands.swerveControllerCommand;
+import frc.robot.Commands.AutoCommands.slalomSwerveControllerCommand;
 import frc.robot.Subsystem.SwerveDriveSubsystem;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 
@@ -282,8 +282,8 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     
-    m_autonomousCommand = robotContainer.getAutonomousCommand();
-    //m_autonomousCommand = new swerveControllerCommand();
+    //m_autonomousCommand = robotContainer.getAutonomousCommand();
+    m_autonomousCommand = new slalomSwerveControllerCommand();
 
     //m_autonomousCommand =  robotContainer.getAutonomousCommand();
     if (m_autonomousCommand != null) {
