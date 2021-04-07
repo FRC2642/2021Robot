@@ -479,6 +479,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   /** */
 
   double lastHeading = 0;
+  
   public double getRobotYaw(){
     double heading = lastHeading;
     try {
@@ -513,6 +514,14 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     navx.zeroYaw();
   }
 
+  /*public static double driveWithGyro(){
+    frontLeftModule.setModuleAngle(getRobotYawInRotation2d());   
+    frontRightModule.setModuleAngle(getRobotYawInRotation2d());
+    backLeftModule.setModuleAngle(getRobotYawInRotation2d());
+    backRightModule.setModuleAngle(getRobotYawInRotation2d());
+
+
+  }*/
   /**
    * POSE GENERATION FOR USE IN AUTO PATHING
    */
@@ -528,6 +537,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     return pose; 
 
     //return pose;
+  }
+
+  public void resetOdometry(Pose2d pose) {
+    odometry.resetPosition(pose, navx.getRotation2d());
   }
 
   public double getPoseXInFeet(){
@@ -548,19 +561,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   public void resetPose(){
     odometry.resetPosition(new Pose2d(), getRobotYawInRotation2d());
   }
-
-  public Pose2d updatedPose(){
-    updatedPose = odometry.update(getRobotYawInRotation2d(), frontLeftModule.getState(), frontRightModule.getState(), backLeftModule.getState(), backRightModule.getState());
-        driveEncoder.setVelocityConversionFactor(kDriveVelocityConversionFactor); //rpm into MPS  
-    return updatedPose;
-  }
   
   public void doNothing(){
   }
 
-  /*public double getAbsoluteAngleEncoder(){
-    return absoluteAngleEncoder.getPosition();
-  }*/
 
   public double getDriveVelocity(){
     return driveEncoder.getVelocity();

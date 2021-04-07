@@ -112,18 +112,24 @@ public class RobotContainer {
   public static Trigger auxUpDPad = new Trigger(arm::getUpDPad);
   public static Trigger auxDownDPad = new Trigger(arm::getDownDPad);
   
-  public static SwerveControllerCommand swerveControllerCommandCenter;
+  /*public static SwerveControllerCommand swerveControllerCommandCenter;
   public static SwerveControllerCommand swerveControllerCommandLeft;
   public static SwerveControllerCommand swerveControllerCommandRight1;
   public static SwerveControllerCommand swerveControllerCommandRight2;
-  public static SwerveControllerCommand swerveControllerCommandExample;
+  public static SwerveControllerCommand swerveControllerCommandExample;*/
 
-  public boolean ticksAt5Feet;
   //actual swerve controller command
-  public static SwerveControllerCommand swervecontrollercommand;
+  public static SwerveControllerCommand barrelSwervecontrollercommand;
 
-  public TrajectoryConfig config;
-  public Trajectory autonav3;
+  //public TrajectoryConfig config;
+
+  public Trajectory barrel;
+
+  private final PIDController xController = new PIDController(1.0, 0.4, 0);
+  private final PIDController yController = new PIDController(1.0, 0.4, 0);
+  private final ProfiledPIDController thetaController = new ProfiledPIDController(1.0, 0.4, 0,
+            kThetaControllerConstraints);
+
   //public double ticks;
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -333,9 +339,10 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
 
-      Command auto =
+  Command auto =
       //return auto; 
-  
+      //new WaitCommand(2.0).deadlineWith(new RunCommand(() -> drive.drive(.3, 0.0, 0.0), drive));
+
   new WaitUntilCommand(
     () -> magazine.isMagReadyToShoot()
   )
@@ -358,10 +365,10 @@ new InstantCommand(
 ).andThen(
 new WaitCommand(.25)
 ).andThen(
-new WaitCommand(.5)
+new WaitCommand(2.0)
   .deadlineWith(
     new RunCommand(
-      () -> drive.drive(-.3, 0.0, 0.0), drive)
+      () -> drive.drive(-.3, 0.0, drive.getRobotYaw()), drive)
   )  
 ).andThen(
   new RunCommand(
@@ -370,58 +377,14 @@ new WaitCommand(.5)
 ).andThen(
 autoArmToIntakePosition); 
 
+//new WaitCommand(2.0).deadlineWith(drive.drive(0.3, 0.0, drive.getRobotYaw()));
+
+
 return auto;
 
-  }
 
-  
-
-
-          
-
-  /*new WaitUntilCommand(
-    () -> magazine.isMagReadyToShoot()
-  )
- .deadlineWith(
-    autoArmInitLineShootPosition,
-    new RunCommand(
-      () -> shooter.setShooterSpeed(1600), shooter
-      )
-).andThen( 
-new WaitCommand(3)
-  .deadlineWith(
-    new RunCommand(
-      () -> magazine.setToShootingStateShortRange(), magazine
-  )
-)
-).andThen(
-new InstantCommand(
-  () -> drive.alignWheels(), drive
-)
-).andThen(*/
-
-  
 /*TrajectoryConfig config =
-new TrajectoryConfig(kRealMaxMPS,
-                     kMaxAcceleration)
-    // Add kinematics to ensure max speed is actually obeyed
-    .setKinematics(drive.kinematics)
-    // Apply the voltage constraint
-    .addConstraint(autoVoltageConstraint);*/
-
-//return auto;
-   }
-
-
-
-
-
-  
-
-
-    
-/*TrajectoryConfig config =
-      new TrajectoryConfig(Constants.kRealMaxMPS, Constants.kMaxAcceleration)
+      new TrajectoryConfig(2.0, 1.2192)
         // Add kinematics to ensure max speed is actually obeyed
         .setKinematics(drive.kinematics);
       
@@ -431,15 +394,15 @@ new TrajectoryConfig(kRealMaxMPS,
           Trajectory autonav3 = TrajectoryGenerator.generateTrajectory(
             new Pose2d(0, 0, new Rotation2d(0)),
             List.of(              
-              new Translation2d(10.8,0),
-              new Translation2d(0, 10.8)),
-              new Pose2d(10.8, 10.8, new Rotation2d(0)),             
+              new Translation2d(2.0,0.0),
+              new Translation2d(0.0, 2.0)),
+              new Pose2d(2.0, 2.0, new Rotation2d(0)),             
                 config);
 
             
         SwerveControllerCommand swervecontrollercommand = new SwerveControllerCommand(
           autonav3,
-          drive::updatedPose, 
+          drive::getPose, 
           drive.kinematics,
           //Position controllers
           new PIDController(1.0, 0.4, 0),
@@ -449,8 +412,22 @@ new TrajectoryConfig(kRealMaxMPS,
           drive::setModuleStates,
           drive
         );
-    return swervecontrollercommand.andThen(() -> drive.drive(0.0,0.0,0.0));
-      //return auto; */
+        drive.odometry.resetPosition(autonav3.getInitialPose(), new Rotation2d(0.0));
+
+    return swervecontrollercommand.andThen(() -> drive.drive(0.0,0.0,0.0));*/
+
+  }
+}
+
+
+
+
+
+  
+
+
+    
+      //return auto; 
   
 //}
 

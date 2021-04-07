@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 
 public class bounceSwerveControllerCommand extends CommandBase {
   public static final SwerveDriveSubsystem drive = new SwerveDriveSubsystem();
-  private final Timer timer = new Timer();
+  private Timer timer = new Timer();
   private Trajectory bounce;
   private Pose2d finalPose;
 
@@ -46,7 +46,7 @@ public class bounceSwerveControllerCommand extends CommandBase {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive);
 
-    TrajectoryConfig config =
+    /*TrajectoryConfig config =
     new TrajectoryConfig(kRealMaxMPS, kMaxAcceleration)
       // Add kinematics to ensure max speed is actually obeyed
       .setKinematics(drive.kinematics);
@@ -88,7 +88,7 @@ public class bounceSwerveControllerCommand extends CommandBase {
         thetaController,
         drive::setModuleStates,
         drive
-      );
+      );*/
 
   }
 
@@ -96,16 +96,16 @@ public class bounceSwerveControllerCommand extends CommandBase {
   @Override
   public void initialize() {
     //this.autonav3 = autonav3;
-    timer.reset();
-    timer.start();
+    //timer.reset();
+    //timer.start();
 
-    finalPose = bounce.sample(bounce.getTotalTimeSeconds()).poseMeters;
+    //finalPose = bounce.sample(bounce.getTotalTimeSeconds()).poseMeters;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double curTime = timer.get();
+    /*double curTime = timer.get();
 
     var desiredState = bounce.sample(curTime);
     var desiredPose = desiredState.poseMeters;
@@ -142,12 +142,14 @@ public class bounceSwerveControllerCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-        timer.stop();
+        timer.stop();*/
 
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return timer.hasElapsed(bounce.getTotalTimeSeconds());  }
+    return false;
+    //return timer.hasElapsed(bounce.getTotalTimeSeconds());  }
+}
 }

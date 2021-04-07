@@ -28,7 +28,41 @@ import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 public class barrelSwerveControllerCommand extends CommandBase {
   public static final SwerveDriveSubsystem drive = new SwerveDriveSubsystem();
   private final Timer timer = new Timer();
-  private Trajectory barrel;
+  
+  public TrajectoryConfig config =
+  new TrajectoryConfig(kRealMaxMPS, kMaxAcceleration)
+    // Add kinematics to ensure max speed is actually obeyed
+    .setKinematics(drive.kinematics);
+  
+
+  
+  public Trajectory barrel = TrajectoryGenerator.generateTrajectory(
+    new Pose2d(0, 0, new Rotation2d(0)),
+    List.of(              
+      /*new Translation2d(0.4545, 3.7545),
+      new Translation2d(0.7333, 6.0573),
+      new Translation2d(-0.5818, -4.8058),
+      new Translation2d(0.7576, 6.2576),
+      new Translation2d(-1.1273, -9.3113),
+      new Translation2d(0.8242, 6.8082),
+      new Translation2d(-0.8242, -6.8082),
+      new Translation2d(0.2182, 1.8022),
+      new Translation2d(1.4485, 11.9645),
+      new Translation2d(0.0667, 0.5507),
+      new Translation2d(-0.1515, -1.2515),
+      new Translation2d(-0.1545, -1.2765),
+      new Translation2d(-1.0576, -8.7356),
+      new Translation2d(0.3455, 2.8535),
+      new Translation2d(1.3212, 10.9132),
+      new Translation2d(-0.1333, -1.1013),
+      new Translation2d(-1.5333, -12.6653),
+      new Translation2d(-0.6061, -5.0061)),*/
+      new Translation2d(5.0, 0.0),
+      new Translation2d(0.0, 5.0)),
+      new Pose2d(5.0, 5.0, new Rotation2d(0)),
+      //new Pose2d(0.0001, 0.0001, new Rotation2d(0)),            
+        config);
+  
   private Pose2d finalPose;
 
   private final PIDController xController = new PIDController(1.0, 0.4, 0);
@@ -46,39 +80,9 @@ public class barrelSwerveControllerCommand extends CommandBase {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive);
 
-    TrajectoryConfig config =
-    new TrajectoryConfig(kRealMaxMPS, kMaxAcceleration)
-      // Add kinematics to ensure max speed is actually obeyed
-      .setKinematics(drive.kinematics);
-    
-    config.setReversed(true);
-
-    Trajectory barrel = TrajectoryGenerator.generateTrajectory(
-      new Pose2d(0, 0, new Rotation2d(0)),
-      List.of(              
-        new Translation2d(0.4545, 3.7545),
-        new Translation2d(0.7333, 6.0573),
-        new Translation2d(-0.5818, -4.8058),
-        new Translation2d(0.7576, 6.2576),
-        new Translation2d(-1.1273, -9.3113),
-        new Translation2d(0.8242, 6.8082),
-        new Translation2d(-0.8242, -6.8082),
-        new Translation2d(0.2182, 1.8022),
-        new Translation2d(1.4485, 11.9645),
-        new Translation2d(0.0667, 0.5507),
-        new Translation2d(-0.1515, -1.2515),
-        new Translation2d(-0.1545, -1.2765),
-        new Translation2d(-1.0576, -8.7356),
-        new Translation2d(0.3455, 2.8535),
-        new Translation2d(1.3212, 10.9132),
-        new Translation2d(-0.1333, -1.1013),
-        new Translation2d(-1.5333, -12.6653),
-        new Translation2d(-0.6061, -5.0061)),
-        new Pose2d(0.0001, 0.0001, new Rotation2d(0)),            
-          config);
 
           
-      SwerveControllerCommand barrelSwerveControllerCommand = new SwerveControllerCommand(
+    SwerveControllerCommand barrelSwerveControllerCommand = new SwerveControllerCommand(
         barrel,
         drive::getPose, 
         drive.kinematics,
@@ -89,7 +93,6 @@ public class barrelSwerveControllerCommand extends CommandBase {
         drive::setModuleStates,
         drive
       );
-
   }
 
   // Called when the command is initially scheduled.
@@ -98,6 +101,8 @@ public class barrelSwerveControllerCommand extends CommandBase {
     //this.autonav3 = autonav3;
     timer.reset();
     timer.start();
+    
+    config.setReversed(true);
 
     finalPose = barrel.sample(barrel.getTotalTimeSeconds()).poseMeters;
   }

@@ -67,42 +67,31 @@ package frc.robot;
 
 import static frc.robot.GeneralUtil.generateAuto;
 
-import java.io.IOException;
-import java.nio.file.Path;
-
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
-import org.opencv.imgproc.Imgproc;
 
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.cscore.VideoSink;
 import edu.wpi.cscore.VideoSource;
 import edu.wpi.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.vision.VisionPipeline;
-import edu.wpi.first.vision.VisionThread;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.Watchdog;
 import frc.robot.Commands.AutoCommands.TurnDrive;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj.Timer;
 //import frc.robot.util.JevoisDriver;
 import frc.robot.RobotContainer;
+import frc.robot.Commands.AutoCommands.barrelSwerveControllerCommand;
 import frc.robot.Commands.AutoCommands.autoCommandGroup;
-import frc.robot.Commands.AutoCommands.slalomSwerveControllerCommand;
+
 import frc.robot.Subsystem.SwerveDriveSubsystem;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 
 
 
@@ -119,9 +108,7 @@ public class Robot extends TimedRobot {
 
   public Command m_autonomousCommand;
   public RobotContainer robotContainer;
-  public Watchdog watchdog;
 
-  private final Timer timer = new Timer();
 
 /*   public VideoSource camera;
   public VisionPipeline cameraPipeline;
@@ -282,8 +269,9 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     
-    //m_autonomousCommand = robotContainer.getAutonomousCommand();
-    m_autonomousCommand = new slalomSwerveControllerCommand();
+    m_autonomousCommand = robotContainer.getAutonomousCommand();
+    //m_autonomousCommand = new barrelSwerveControllerCommand();
+    //m_autonomousCommand = new autoCommandGroup();
 
     //m_autonomousCommand =  robotContainer.getAutonomousCommand();
     if (m_autonomousCommand != null) {
@@ -307,6 +295,7 @@ public class Robot extends TimedRobot {
         drive.stop();
       }*/
       
+  Scheduler.getInstance().run();
   }
 
   @Override
