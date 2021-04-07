@@ -333,9 +333,10 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
 
-    Command auto =
-
-  /*new WaitUntilCommand(
+      Command auto =
+      //return auto; 
+  
+  new WaitUntilCommand(
     () -> magazine.isMagReadyToShoot()
   )
  .deadlineWith(
@@ -368,49 +369,14 @@ new WaitCommand(.5)
     )
 ).andThen(
 autoArmToIntakePosition); 
+
 return auto;
-}*/
-new RunCommand(() -> drive.drive(0.3,0.0,0.0), drive);
-return auto;
-}
-}
+
+  }
+
   
-    /*Command auto = 
-      new WaitCommand(.5)
-        .deadlineWith(
-      new RunCommand(
-        () -> drive.drive(-.3, 0.0, 0.0), drive)
-                  )  
-        .andThen(
-      new RunCommand(
-      () -> drive.drive(0.0, 0.0, 0.0), drive
-      )
-    );*/
 
-    /*Command auto =
 
-            new WaitCommand(5)
-                .deadlineWith(
-                    new RunCommand(
-                          () -> drive.drive(-.3, 0.0, 0.0), drive)
-                             )  
-                      .andThen(
-                    new RunCommand(
-                          () -> drive.drive(0.0, 0.0, 0.0), drive
-                             ).andThen(
-                              new WaitCommand(5)
-                              .deadlineWith(
-                                  new RunCommand(
-                                        () -> drive.drive(.3, 0.0, 0.0), drive)
-                                           )  
-                                    .andThen(
-                                  new RunCommand(
-                                        () -> drive.drive(0.0, 0.0, 0.0), drive
-                                           ))
-                             )
-                              );
-  return auto;
-}*/
           
 
   /*new WaitUntilCommand(
@@ -434,123 +400,21 @@ new InstantCommand(
 )
 ).andThen(*/
 
-// WORKS DO NOT TOUCH CHANGE THE CHALLENGE, FAKE THE VIDEO, THID WILL NOT CHANGE. WE WILL NOT RUIN THIS.
+  
+/*TrajectoryConfig config =
+new TrajectoryConfig(kRealMaxMPS,
+                     kMaxAcceleration)
+    // Add kinematics to ensure max speed is actually obeyed
+    .setKinematics(drive.kinematics)
+    // Apply the voltage constraint
+    .addConstraint(autoVoltageConstraint);*/
 
-//Command auto =
-
-/*new WaitCommand(2).deadlineWith(new RunCommand(() -> drive.drive(.3, 0.0, 0.0), drive))
-.andThen(
-new TurnDrive(45.0))
-.andThen(
-new WaitCommand(2).deadlineWith(new RunCommand(() -> drive.drive(-.3, 0.0, 0.0), drive)));*/
-
-//barrel racing path (?)
-/*new WaitCommand(2.130286183).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive))
-.andThen(
-new TurnDrive(23.19859051))
-.andThen(
-
-
-new TurnDrive(23.1985905136482)
-.andThen(
-new WaitCommand(2.13028618345844).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(71.565051177078))
-.andThen(
-new WaitCommand(0.884553191655491).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(0))
-.andThen(
-new WaitCommand(0.979020979020979).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(-81.869897645844))
-.andThen(
-new WaitCommand(0.988960533128038).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(-26.565051177078))
-.andThen(
-new WaitCommand(0.625473560139801).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(36.869897645844))
-.andThen(
-new WaitCommand(0.699300699300699).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(-45))
-.andThen(
-new WaitCommand(0.593376319876823).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(36.869897645844))
-.andThen(
-new WaitCommand(0.699300699300699).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(81.869897645844))
-.andThen(
-new WaitCommand(0.988960533128038).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(80.5376777919744))
-.andThen(
-new WaitCommand(0.850736018223527).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(54.4623222080256))
-.andThen(
-new WaitCommand(1.203122414971).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(-45))
-.andThen(
-new WaitCommand(0.593376319876823).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(75.9637565320735))
-.andThen(
-new WaitCommand(0.576658129457015).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(14.0362434679265))
-.andThen(
-new WaitCommand(0.576658129457015).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(-23.1985905136482))
-.andThen(
-new WaitCommand(1.06514309172922).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(-56.3099324740202))
-.andThen(
-new WaitCommand(1.0085458113186).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(0))
-.andThen(
-new WaitCommand(0.839160839160839).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(33.6900675259798))
-.andThen(
-new WaitCommand(0.504272905659299).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(-14.0362434679265))
-.andThen(
-new WaitCommand(0.576658129457015).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(0))
-.andThen(
-new WaitCommand(0.839160839160839).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(0))
-.andThen(
-new WaitCommand(1.11888111888112).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(-77.9052429229879))
-.andThen(
-new WaitCommand(2.00249245640229).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(-81.869897645844))
-.andThen(
-new WaitCommand(0.988960533128038).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)))
-.andThen(
-new TurnDrive(-57.3085463068892))
-.andThen(
-new WaitCommand(1.25874125874126).deadlineWith(new RunCommand(() -> drive.drive(0.3, 0.0, 0.0), drive)));*/
-                   
-/*.andThen(
-autoArmToIntakePosition
-); */
 //return auto;
+   }
+
+
+
+
 
   
 

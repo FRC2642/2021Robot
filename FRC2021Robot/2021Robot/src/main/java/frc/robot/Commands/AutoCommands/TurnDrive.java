@@ -22,7 +22,7 @@ public class TurnDrive extends CommandBase {
   /**
    * Creates a new TurnDrive.
    */
-  private double degrees;
+  public double degrees;
   private double negDegrees;
   
   public TurnDrive(double degrees) {
