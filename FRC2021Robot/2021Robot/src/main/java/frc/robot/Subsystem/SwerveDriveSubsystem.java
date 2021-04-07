@@ -40,12 +40,7 @@ import frc.robot.SwerveModule;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANAnalog;
 
-import jaci.pathfinder.Waypoint;
-import jaci.pathfinder.Pathfinder;
-import jaci.pathfinder.Trajectory.Config;
-import jaci.pathfinder.Trajectory.FitMethod;
-import jaci.pathfinder.modifiers.SwerveModifier;
-import jaci.pathfinder.followers.EncoderFollower;
+
 
 
 
@@ -91,7 +86,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
   public boolean isSlowDrive = false;
 
-  private static final Config config = new Config(FitMethod.HERMITE_CUBIC, Config.SAMPLES_HIGH, 1.0/50.0, kMaxMPS, kMaxAcceleration, 60.0);
 
   /**
    * Creates a new SwerveDriveSubsystem.
@@ -415,23 +409,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     robotCentricDrive(0, 0, 0);
   }
 
-  public EncoderFollower[] generateFollowers(final Waypoint[] points) {
-    final SwerveModifier modifier = new SwerveModifier(Pathfinder.generate(points, config))
-    .modify(wheelBaseWidth, wheelBaseLength, SwerveModifier.Mode.SWERVE_DEFAULT);
-
-    final EncoderFollower[] followers = new EncoderFollower[] {
-      new EncoderFollower(modifier.getFrontLeftTrajectory()),
-      new EncoderFollower(modifier.getFrontRightTrajectory()),
-      new EncoderFollower(modifier.getBackLeftTrajectory()),
-      new EncoderFollower(modifier.getBackRightTrajectory())
-
-    };
-    for (final EncoderFollower follower : followers) {
-      follower.configureEncoder(0, ticksPerRevolution, 4.0);
-      follower.configurePIDVA(5.0, 0.0, 0.0, 1.0/kMaxMPS, 1.0/kMaxAcceleration);
-    }
-    return followers
-  }
+  
   /**
    * Sets wheels into locked position (most resistant to being pushed)
    */
