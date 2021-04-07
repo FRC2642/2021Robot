@@ -25,10 +25,10 @@ import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 
 
 
-public class swerveControllerCommand extends CommandBase {
+public class slalomSwerveControllerCommand extends CommandBase {
   public static final SwerveDriveSubsystem drive = new SwerveDriveSubsystem();
   private final Timer timer = new Timer();
-  private Trajectory autonav3;
+  private Trajectory slalom;
   private Pose2d finalPose;
 
   private final PIDController xController = new PIDController(1.0, 0.4, 0);
@@ -42,7 +42,7 @@ public class swerveControllerCommand extends CommandBase {
 
 
   /** Creates a new swerveControllerCommand. */
-  public swerveControllerCommand() {
+  public slalomSwerveControllerCommand() {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(drive);
 
@@ -53,17 +53,38 @@ public class swerveControllerCommand extends CommandBase {
     
     config.setReversed(true);
 
-    Trajectory autonav3 = TrajectoryGenerator.generateTrajectory(
+    Trajectory slalom = TrajectoryGenerator.generateTrajectory(
       new Pose2d(0, 0, new Rotation2d(0)),
       List.of(              
-        new Translation2d(5,0),
-        new Translation2d(0, 5)),
-        new Pose2d(5, 5, new Rotation2d(0)),             
+        new Translation2d(1.2121, 0.6061),
+        new Translation2d(0.7576, 0.303),
+        new Translation2d(0.9091, 1.3636),
+        new Translation2d(0.9091, 0.4545),
+        new Translation2d(0.7576, 0.1515),
+        new Translation2d(1.2121, -0.1515),
+        new Translation2d(0.6061, -0.6061),
+        new Translation2d(0.6061, -1.0606),
+        new Translation2d(0.7576, -0.303),
+        new Translation2d(0.6061, 0.1515),
+        new Translation2d(0.303, 0.6061),
+        new Translation2d(-0.1515, 0.6061),
+        new Translation2d(-0.7576, 0.4545),
+        new Translation2d(-0.6061, -0.1515),
+        new Translation2d(-0.4545, -0.7576),
+        new Translation2d(-0.303, -0.6061),
+        new Translation2d(-0.9091, -0.303),
+        new Translation2d(-1.6667, -0.1515),
+        new Translation2d(-0.9091, 0.303),
+        new Translation2d(-0.6061, 0.6061),
+        new Translation2d(-0.6061, 0.9091),
+        new Translation2d(-1.0606, 0.1515),
+        new Translation2d(-0.6061, -2.5758)),
+        new Pose2d(0, -0.0001, new Rotation2d(0)),             
           config);
 
           
       SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-        autonav3,
+        slalom,
         drive::getPose, 
         drive.kinematics,
         //Position controllers
@@ -83,7 +104,7 @@ public class swerveControllerCommand extends CommandBase {
     timer.reset();
     timer.start();
 
-    finalPose = autonav3.sample(autonav3.getTotalTimeSeconds()).poseMeters;
+    finalPose = slalom.sample(slalom.getTotalTimeSeconds()).poseMeters;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -91,7 +112,7 @@ public class swerveControllerCommand extends CommandBase {
   public void execute() {
     double curTime = timer.get();
 
-    var desiredState = autonav3.sample(curTime);
+    var desiredState = slalom.sample(curTime);
     var desiredPose = desiredState.poseMeters;
 
     var poseError = desiredPose.relativeTo(drive.getPose());
@@ -133,5 +154,5 @@ public class swerveControllerCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return timer.hasElapsed(autonav3.getTotalTimeSeconds());  }
+    return timer.hasElapsed(slalom.getTotalTimeSeconds());  }
 }
