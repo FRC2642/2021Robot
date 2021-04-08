@@ -90,6 +90,7 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.RobotContainer;
 import frc.robot.Commands.AutoCommands.barrelSwerveControllerCommand;
 import frc.robot.Commands.AutoCommands.autoCommandGroup;
+import frc.robot.SwerveModule;
 
 import frc.robot.Subsystem.SwerveDriveSubsystem;
 
@@ -268,7 +269,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    
+
+    SwerveModule.setToZero();
     m_autonomousCommand = robotContainer.getAutonomousCommand();
     //m_autonomousCommand = new barrelSwerveControllerCommand();
     //m_autonomousCommand = new autoCommandGroup();
@@ -286,6 +288,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
+
     /*new WaitCommand(2).deadlineWith(new RunCommand(() -> drive.drive(.3, 0.0, 0.0), drive))
     .andThen(
       new WaitCommand(2).deadlineWith(new RunCommand(() -> drive.drive(-.3, 0.0, 0.0), drive)));*/

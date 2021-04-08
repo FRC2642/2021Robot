@@ -361,7 +361,7 @@ new WaitCommand(3)
 ).andThen(
 new InstantCommand(
   () -> drive.alignWheels(), drive
-)
+).andThen(SwerveModule.setToZero())
 ).andThen(
 new WaitCommand(.25)
 ).andThen(

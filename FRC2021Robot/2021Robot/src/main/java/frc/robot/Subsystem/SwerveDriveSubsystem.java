@@ -166,10 +166,10 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
 
     //assigns drive and angle motors to their respective swerve modules with offsets
-    frontLeftModule = new SwerveModule(frontLeftDriveMotor, frontLeftAngleMotor, kFrontLeftAngleModuleOffset);
-    frontRightModule = new SwerveModule(frontRightDriveMotor, frontRightAngleMotor, kFrontRightAngleModuleOffset);
-    backLeftModule = new SwerveModule(backLeftDriveMotor, backLeftAngleMotor, kBackLeftAngleModuleOffset);
-    backRightModule = new SwerveModule(backRightDriveMotor, backRightAngleMotor, kBackRightAngleModuleOffset);
+    frontLeftModule = new SwerveModule(frontLeftDriveMotor, frontLeftAngleMotor, kFrontLeftAngleAutoModuleOffset);
+    frontRightModule = new SwerveModule(frontRightDriveMotor, frontRightAngleMotor, kFrontRightAngleAutoModuleOffset);
+    backLeftModule = new SwerveModule(backLeftDriveMotor, backLeftAngleMotor, kBackLeftAngleAutoModuleOffset);
+    backRightModule = new SwerveModule(backRightDriveMotor, backRightAngleMotor, kBackRightAngleAutoModuleOffset);
 
     //assigns swerve modules to an array 
     //this simplifies updating module states

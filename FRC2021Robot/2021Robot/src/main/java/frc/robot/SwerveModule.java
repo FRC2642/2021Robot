@@ -32,7 +32,7 @@ public class SwerveModule {
   CANSparkMax driveMotor, angleMotor;
   CANPIDController drivePID, anglePID;
   CANEncoder driveEncoder;
-  CANEncoder relativeAngleEncoder;
+  static CANEncoder relativeAngleEncoder;
   CANAnalog absoluteAngleEncoder;
 
   double targetVelocity;
@@ -43,42 +43,43 @@ public class SwerveModule {
   double moduleOffset;
 
   /**
-   * Constructs a SwerveModule with an assigned angle and drive motor and an offset value
+   * Constructs a SwerveModule with an assigned angle and drive motor and an
+   * offset value
    * 
-   * @param driveMotor Spark MAX used to drive module wheel
-   * @param angleMotor Spark MAX used to rotate module wheel
+   * @param driveMotor  Spark MAX used to drive module wheel
+   * @param angleMotor  Spark MAX used to rotate module wheel
    * @param angleOffset Angular offset (degrees)
    */
-  public SwerveModule(CANSparkMax driveMotor, CANSparkMax angleMotor, double moduleOffset){
-    //creates reference to assigned motor
+  public SwerveModule(CANSparkMax driveMotor, CANSparkMax angleMotor, double moduleOffset) {
+    // creates reference to assigned motor
     this.driveMotor = driveMotor;
     this.angleMotor = angleMotor;
 
-    //assigns encoders 
+    // assigns encoders
     driveEncoder = driveMotor.getEncoder();
     absoluteAngleEncoder = angleMotor.getAnalog(CANAnalog.AnalogMode.kAbsolute);
     relativeAngleEncoder = angleMotor.getEncoder();
 
-    //assigns PID Controllers
+    // assigns PID Controllers
     drivePID = driveMotor.getPIDController();
     anglePID = angleMotor.getPIDController();
 
-    //assigns angle encoder to PID
-    //anglePID.setFeedbackDevice(absoluteAngleEncoder);
+    // assigns angle encoder to PID
+    // anglePID.setFeedbackDevice(absoluteAngleEncoder);
     anglePID.setFeedbackDevice(relativeAngleEncoder);
-    
-    //sets PID constants
+
+    // sets PID constants
     setPIDGains(drivePID, PIDProfile.DRIVE);
     setPIDGains(anglePID, PIDProfile.ANGLE);
 
-    //assigns absolute encoder offset values
+    // assigns absolute encoder offset values
     this.moduleOffset = moduleOffset;
 
-    //sets conversion factors (native unit into usable unit)
-    absoluteAngleEncoder.setPositionConversionFactor(kAnglePositionConversionFactor); //voltage into degrees
-    driveEncoder.setVelocityConversionFactor(kDriveVelocityConversionFactor); //rpm into MPS  
+    // sets conversion factors (native unit into usable unit)
+    absoluteAngleEncoder.setPositionConversionFactor(kAnglePositionConversionFactor); // voltage into degrees
+    driveEncoder.setVelocityConversionFactor(kDriveVelocityConversionFactor); // rpm into MPS
 
-    //disables soft limits on Spark MAXs
+    // disables soft limits on Spark MAXs
     angleMotor.enableSoftLimit(SoftLimitDirection.kForward, false);
     angleMotor.enableSoftLimit(SoftLimitDirection.kReverse, false);
 
@@ -93,63 +94,63 @@ public class SwerveModule {
 
   /** */
 
-  public SwerveModuleState getState(){
+  public SwerveModuleState getState() {
     return new SwerveModuleState(driveEncoder.getVelocity(), new Rotation2d(absoluteAngleEncoder.getPosition()));
   }
 
-  public double getTargetVelocity(SwerveModuleState state){
+  public double getTargetVelocity(SwerveModuleState state) {
     targetVelocity = state.speedMetersPerSecond;
 
     return targetVelocity;
   }
 
-  public Rotation2d getTargetAngle(SwerveModuleState state){
+  public Rotation2d getTargetAngle(SwerveModuleState state) {
     Rotation2d targetAngle = state.angle;
 
-    //targetMotorAngle = realignAndOffsetEncoder(targetAngle.getDegrees());
+    // targetMotorAngle = realignAndOffsetEncoder(targetAngle.getDegrees());
     targetMotorAngle = offsetEncoder(targetAngle.getDegrees());
 
     return targetAngle;
   }
 
+  public void setModuleVelocity(double targetVelocity) {
 
-  public void setModuleVelocity(double targetVelocity){
+    // System.out.println("velocity = " + targetVelocity);
 
-    //System.out.println("velocity = " + targetVelocity);
-  
     drivePID.setReference(targetVelocity, ControlType.kVelocity);
-    
+
   }
 
-  public void setModuleAngle(Rotation2d targetAngle){
+  public void setModuleAngle(Rotation2d targetAngle) {
 
-      double target = targetAngle.getDegrees();
-      target *= kModuleDegreesToRelativeRotations;
-      double current = getRelativeAngleEncoder();
+    double target = targetAngle.getDegrees();
+    target *= kModuleDegreesToRelativeRotations;
+    double current = getRelativeAngleEncoder();
 
-      //adjusts target to be in appropriate range of rotation based on current position
-      if(Math.abs(current) > kRelativeRotationsPerModuleRotation){
-        double rotError = 0.0;
-        if(current > 0){
-          rotError = Math.floor(current / kRelativeRotationsPerModuleRotation);
-        } else if(current < 0){
-          rotError = Math.ceil(current / kRelativeRotationsPerModuleRotation);
-        }
-        target += (rotError * kRelativeRotationsPerModuleRotation);
+    // adjusts target to be in appropriate range of rotation based on current
+    // position
+    if (Math.abs(current) > kRelativeRotationsPerModuleRotation) {
+      double rotError = 0.0;
+      if (current > 0) {
+        rotError = Math.floor(current / kRelativeRotationsPerModuleRotation);
+      } else if (current < 0) {
+        rotError = Math.ceil(current / kRelativeRotationsPerModuleRotation);
       }
-      
-      double error = target - current;
+      target += (rotError * kRelativeRotationsPerModuleRotation);
+    }
 
-      //increases target by rotation if taking a inefficient path
-      if(Math.abs(error) > kRelativeRotationsPerModuleRotation / 2){
-        if(current > 0){
-          target += kRelativeRotationsPerModuleRotation;
-        } else if(current < 0){
-          target -= kRelativeRotationsPerModuleRotation;
-        }
+    double error = target - current;
+
+    // increases target by rotation if taking a inefficient path
+    if (Math.abs(error) > kRelativeRotationsPerModuleRotation / 2) {
+      if (current > 0) {
+        target += kRelativeRotationsPerModuleRotation;
+      } else if (current < 0) {
+        target -= kRelativeRotationsPerModuleRotation;
       }
+    }
 
-      anglePID.setReference(target, ControlType.kPosition); 
+    anglePID.setReference(target, ControlType.kPosition);
   }
 
   /**
@@ -158,25 +159,26 @@ public class SwerveModule {
    * @param encoderAngle angle in 0 to 360 degree range
    * @return offset angle in 0 to 360 degree range
    */
-  public double offsetEncoder(double encoderAngle){
-  
+  public double offsetEncoder(double encoderAngle) {
+
     double realignedAngle = encoderAngle;
 
     realignedAngle = ((realignedAngle - moduleOffset) % 360);
-    if(realignedAngle < 0){
+    if (realignedAngle < 0) {
       realignedAngle += 360;
     }
-    
+
     return realignedAngle;
   }
 
   /**
-   * Aligns the module's relative encoder onboard the SparkMax using the absolute encoder position
+   * Aligns the module's relative encoder onboard the SparkMax using the absolute
+   * encoder position
    */
-  public void zeroModules(){
-    if(!getIsWheelAligned()){
+  public void zeroModules() {
+    if (!getIsWheelAligned()) {
       zeroEncoder();
-      
+
       double moduleAngle = getModulePosition();
       double relativeAngle = moduleAngle * kModuleDegreesToRelativeRotations;
       setEncoder(relativeAngle);
@@ -184,61 +186,64 @@ public class SwerveModule {
     }
   }
 
-  public void zeroEncoder(){
+  public void zeroEncoder() {
     setEncoder(0.0);
   }
 
-  public void zeroDriveEncoder(){
+  public void zeroDriveEncoder() {
     setDriveEncoder(0.0);
   }
-  
-  public void setDriveEncoder(double position){
+
+  public void setDriveEncoder(double position) {
     driveEncoder.setPosition(position);
   }
-  
-  
-  public void setEncoder(double position){
+
+  public void setEncoder(double position) {
     relativeAngleEncoder.setPosition(position);
   }
 
-  public void stop(){
+  public void stop() {
     setModuleVelocity(0);
     driveMotor.set(0);
   }
 
-  public void zeroOutI(){
+  public void zeroOutI() {
     drivePID.setIAccum(0.0);
   }
 
   /**
-   * DIAGNOSTIC METHODS 
+   * DIAGNOSTIC METHODS
    */
 
   /**
    * encoder getters
    */
 
-  public double getDriveVelocity(){
+  public double getDriveVelocity() {
     return driveEncoder.getVelocity();
-    
+
   }
 
-
-  public double getAbsoluteAngleEncoder(){
+  public double getAbsoluteAngleEncoder() {
     return absoluteAngleEncoder.getPosition();
   }
 
-  public double getModulePosition(){
+  public double getModulePosition() {
     double angle = getAbsoluteAngleEncoder() - moduleOffset;
-    if(angle < 0){
+    if (angle < 0) {
       angle += 360;
-    } 
+    }
     return angle;
   }
 
-  public double getRelativeAngleEncoder(){
+  public double getRelativeAngleEncoder() {
     return relativeAngleEncoder.getPosition();
   }
+
+  public static void setToZero() {
+    relativeAngleEncoder.setPosition(0);
+}
+
 
   /**
    * module variable getters 
